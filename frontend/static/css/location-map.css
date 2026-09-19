@@ -1,0 +1,233 @@
+:root {
+    --bg: #07111f;
+    --panel: rgba(8, 23, 38, 0.92);
+    --line: rgba(91, 196, 255, 0.28);
+    --text: #e9f7ff;
+    --muted: #97b7cc;
+    --blue: #60c7ff;
+    --green: #74efbe;
+    --warn: #ffd38a;
+    --danger: #ff9d9d;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    color: var(--text);
+    background: #07111f;
+    font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+.location-shell {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 64px 1fr;
+    background: linear-gradient(180deg, #08182a, #050c16);
+}
+
+.location-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 0 22px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(5, 17, 31, 0.95);
+}
+
+.location-title {
+    min-width: 0;
+}
+
+.location-title h1 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+.location-title span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.back-link {
+    flex: 0 0 auto;
+    color: #dff7ff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 12px;
+    text-decoration: none;
+    background: rgba(15, 49, 72, 0.9);
+}
+
+.location-main {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+}
+
+#map {
+    min-width: 0;
+    min-height: 0;
+}
+
+.location-panel {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+}
+
+.status-card,
+.route-card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    background: rgba(5, 15, 27, 0.72);
+}
+
+.status-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.status-head h2,
+.route-card h2 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.badge {
+    border-radius: 999px;
+    padding: 4px 9px;
+    color: var(--danger);
+    background: rgba(255, 108, 108, 0.13);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.badge.online {
+    color: var(--green);
+    background: rgba(116, 239, 190, 0.13);
+}
+
+.metric-list {
+    display: grid;
+    gap: 10px;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.metric strong {
+    color: var(--text);
+    font-family: Consolas, "Microsoft YaHei UI", monospace;
+    font-size: 14px;
+    text-align: right;
+}
+
+.route-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 13px;
+}
+
+button {
+    min-height: 38px;
+    border: 1px solid rgba(96, 199, 255, 0.7);
+    border-radius: 4px;
+    color: #e9fbff;
+    background: rgba(9, 71, 101, 0.95);
+    font: inherit;
+    cursor: pointer;
+}
+
+button:hover {
+    background: rgba(9, 96, 136, 0.98);
+}
+
+button.secondary {
+    border-color: rgba(255, 211, 138, 0.6);
+    background: rgba(86, 58, 16, 0.9);
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
+
+.hint {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.message {
+    min-height: 34px;
+    margin-top: auto;
+    padding: 10px 12px;
+    border: 1px solid rgba(96, 199, 255, 0.22);
+    border-radius: 6px;
+    color: #c9e9f7;
+    background: rgba(2, 10, 18, 0.72);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.message.warn {
+    color: var(--warn);
+    border-color: rgba(255, 211, 138, 0.35);
+}
+
+.message.error {
+    color: var(--danger);
+    border-color: rgba(255, 157, 157, 0.35);
+}
+
+@media (max-width: 900px) {
+    .location-shell {
+        grid-template-rows: auto 1fr;
+    }
+
+    .location-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 14px;
+    }
+
+    .location-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+    }
+
+    .location-panel {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        padding: 12px;
+    }
+}

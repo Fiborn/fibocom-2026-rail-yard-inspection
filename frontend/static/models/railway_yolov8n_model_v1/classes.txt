@@ -1,0 +1,4 @@
+person_intrusion
+track_obstacle
+open_door
+track_damage

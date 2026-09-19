@@ -1,0 +1,15 @@
+${AnsiColor.BRIGHT_GREEN}
+   _____                      __ _______ __________
+  / ___/____ ___  ____ ______/ //_  __(_) / / ____/_  _____
+  \__ \/ __ `__ \/ __ `/ ___/ __// / / / / / __/ / / / / _ \
+ ___/ / / / / / / /_/ / /  / /_ / / / / / / /___/ /_/ /  __/
+/____/_/ /_/ /_/\__,_/_/   \__//_/ /_/_/_/_____/\__, /\___/
+                                               /____/
+${AnsiColor.DEFAULT}
+==================================================================
+${AnsiColor.BRIGHT_YELLOW}
+:: ${application.title} ::
+${AnsiColor.BRIGHT_CYAN}
+Version: ${application.formatted-version}
+Spring Boot: ${spring-boot.formatted-version}
+${AnsiColor.DEFAULT}

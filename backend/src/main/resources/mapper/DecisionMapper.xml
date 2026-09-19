@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace绑定对应的 Dao 接口，方便 MyBatis 自动关联对应要执行的 SQL 语句 -->
+<mapper namespace="team.vastsea.smarttilleye.dao.DecisionDao">
+    <!-- 添加决策任务 -->
+    <insert id="insert" parameterType="Decision" useGeneratedKeys="true" keyProperty="decision.id">
+        INSERT INTO decision
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="decision.message != null">message,</if>
+            <if test="decision.result != null">result,</if>
+            <if test="decision.status != null">status,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="decision.message != null">#{decision.message},</if>
+            <if test="decision.result != null">#{decision.result},</if>
+            <if test="decision.status != null">#{decision.status},</if>
+        </trim>
+    </insert>
+
+
+    <!-- 删除任务 -->
+    <delete id="deleteById" parameterType="Integer">
+        DELETE FROM decision WHERE id = #{id}
+    </delete>
+
+    <!-- 根据 ID 查找任务 -->
+    <select id="findById" parameterType="Integer" resultType="Decision">
+        SELECT *
+        FROM decision
+        WHERE id = #{id}
+    </select>
+
+    <!-- 更新任务信息 -->
+    <update id="update" parameterType="Decision">
+        UPDATE decision
+        <set>
+            <if test="decision.message != null">message = #{decision.message},</if>
+            <if test="decision.result != null">result = #{decision.result},</if>
+            <if test="decision.status != null">status = #{decision.status},</if>
+        </set>
+        WHERE id = #{decision.id}
+    </update>
+
+    <!-- 分页查询所有任务 -->
+    <select id="getAll" resultType="Decision">
+        SELECT *
+        FROM decision
+                 LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 查询任务的总数 -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM decision
+    </select>
+
+    <!-- 获取最新一条已处理的建议 -->
+    <select id="findLatestProcessed" resultType="Decision">
+        SELECT *
+        FROM decision
+        WHERE status = 1
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <!-- 获取最新一条未处理的信息 -->
+    <select id="findLatestUnprocessed" resultType="Decision">
+        SELECT *
+        FROM decision
+        WHERE status = 0
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

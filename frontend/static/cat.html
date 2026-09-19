@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能小车控制</title>
+    <!-- 引入Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .control-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .direction-btn {
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .direction-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .direction-btn:active::after {
+            transform: translateY(0);
+        }
+
+        .direction-btn:active {
+            transform: scale(0.95);
+        }
+
+        .direction-btn.up {
+            grid-column: 2;
+            grid-row: 1;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+
+        .direction-btn.down {
+            grid-column: 2;
+            grid-row: 3;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+
+        .direction-btn.left {
+            grid-column: 1;
+            grid-row: 2;
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+        }
+
+        .direction-btn.right {
+            grid-column: 3;
+            grid-row: 2;
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+        }
+
+        .center-btn {
+            grid-column: 2;
+            grid-row: 2;
+            background: radial-gradient(circle, #e74c3c, #c0392b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: default;
+        }
+
+        .status-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .status-light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #7f8c8d;
+            margin-right: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .status-light.active {
+            background-color: #2ecc71;
+            box-shadow: 0 0 10px #2ecc71;
+        }
+
+        .command-log {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            height: 120px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-family: monospace;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .log-time {
+            color: #3498db;
+            margin-right: 10px;
+        }
+
+        .log-command {
+            color: #f1c40f;
+        }
+
+        @media (max-width: 576px) {
+            .control-container {
+                padding: 25px;
+            }
+
+            .d-pad {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="control-container">
+    <div class="d-pad">
+        <!-- 上方向键 -->
+        <button class="direction-btn up"
+                onmousedown="sendCommand('FWD')"
+                onmouseup="sendCommand('STOP')"
+                ontouchstart="sendCommand('FWD')"
+                ontouchend="sendCommand('STOP')">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <!-- 左方向键 -->
+        <button class="direction-btn left"
+                onmousedown="sendCommand('LEFT')"
+                onmouseup="sendCommand('STOP')"
+                ontouchstart="sendCommand('LEFT')"
+                ontouchend="sendCommand('STOP')">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <!-- 中心按钮（装饰用） -->
+        <div class="center-btn">
+            <i class="fas fa-dot-circle"></i>
+        </div>
+
+        <!-- 右方向键 -->
+        <button class="direction-btn right"
+                onmousedown="sendCommand('RIGHT')"
+                onmouseup="sendCommand('STOP')"
+                ontouchstart="sendCommand('RIGHT')"
+                ontouchend="sendCommand('STOP')">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <!-- 下方向键 -->
+        <button class="direction-btn down"
+                onmousedown="sendCommand('BACK')"
+                onmouseup="sendCommand('STOP')"
+                ontouchstart="sendCommand('BACK')"
+                ontouchend="sendCommand('STOP')">
+            <i class="fas fa-arrow-down"></i>
+        </button>
+    </div>
+
+    <div class="status-panel mt-4">
+        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>状态面板</h5>
+
+        <div class="status-indicator">
+            <div class="status-light" id="fwd-status"></div>
+            <div>前进 (FWD)</div>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-light" id="back-status"></div>
+            <div>后退 (BACK)</div>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-light" id="left-status"></div>
+            <div>左转 (LEFT)</div>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-light" id="right-status"></div>
+            <div>右转 (RIGHT)</div>
+        </div>
+
+        <div class="command-log mt-3">
+            <h6 class="mb-2"><i class="fas fa-terminal me-2"></i>命令日志</h6>
+            <div id="log-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="./js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    // 更新状态指示器
+    function updateStatus(command) {
+        // 重置所有状态
+        document.querySelectorAll('.status-light').forEach(light => {
+            light.classList.remove('active');
+        });
+
+        // 根据命令激活相应状态
+        if (command === 'FWD') {
+            document.getElementById('fwd-status').classList.add('active');
+        } else if (command === 'BACK') {
+            document.getElementById('back-status').classList.add('active');
+        } else if (command === 'LEFT') {
+            document.getElementById('left-status').classList.add('active');
+        } else if (command === 'RIGHT') {
+            document.getElementById('right-status').classList.add('active');
+        } else if (command === 'STOP') {
+            // 停止命令时不激活任何状态
+        }
+    }
+
+    // 添加键盘事件支持
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp') {
+            sendCommand('FWD');
+            document.querySelector('.up').classList.add('active');
+        } else if (e.key === 'ArrowDown') {
+            sendCommand('BACK');
+            document.querySelector('.down').classList.add('active');
+        } else if (e.key === 'ArrowLeft') {
+            sendCommand('LEFT');
+            document.querySelector('.left').classList.add('active');
+        } else if (e.key === 'ArrowRight') {
+            sendCommand('RIGHT');
+            document.querySelector('.right').classList.add('active');
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            sendCommand('STOP');
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+    });
+</script>
+
+<script>
+    let ws;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const reconnectDelay = 3000; // 3秒重连间隔
+
+    function connectWebSocket() {
+        ws = new WebSocket(`ws://${window.location.host}/ws/controller`);
+
+        // 设置事件监听
+        ws.onopen = () => {
+            console.log('WebSocket连接建立');
+            reconnectAttempts = 0; // 重置重试次数
+        };
+
+        ws.onmessage = (event) => {
+            // 可添加响应处理逻辑
+            console.log('收到消息:', event.data);
+        };
+
+        ws.onclose = (event) => {
+            console.log(`连接关闭 code:${event.code} reason:${event.reason}`);
+            handleReconnect();
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+            ws.close(); // 触发onclose处理
+        };
+    }
+
+    function handleReconnect() {
+
+        if(reconnectAttempts < maxReconnectAttempts) {
+            setTimeout(() => {
+                console.log(`尝试重连第 ${reconnectAttempts + 1} 次`);
+                reconnectAttempts++;
+                connectWebSocket();
+            }, reconnectDelay);
+        } else {
+            console.log('重连失败');
+        }
+    }
+
+    function sendCommand(command) {
+        // 更新状态指示器
+        updateStatus(command);
+
+        // 创建日志条目
+        const now = new Date();
+        const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.innerHTML = `<span class="log-time">${timestamp}</span> 发送命令: <span class="log-command">${command}</span>`;
+
+        // 添加到日志容器
+        const logContainer = document.getElementById('log-container');
+        logContainer.appendChild(logEntry);
+
+        // 滚动到底部
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        // 在实际应用中，这里应该包含发送命令到服务器的代码
+        if(ws.readyState === WebSocket.OPEN) {
+            ws.send(command);
+        } else {
+            console.warn('尝试发送命令时连接不可用');
+        }
+
+        console.log(`命令已发送: ${command}`);
+    }
+
+    // 初始化连接
+    connectWebSocket();
+
+</script>
+</body>
+</html>

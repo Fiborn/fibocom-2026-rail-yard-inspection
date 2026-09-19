@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTillEye 实时定位与路径规划</title>
+    <link rel="stylesheet" href="css/location-map.css?v=20260818-location1">
+    <script src="js/app-config.local.js?v=20260818-location1"></script>
+    <script src="js/app-config.js?v=20260818-location1"></script>
+</head>
+<body>
+<div class="location-shell">
+    <header class="location-header">
+        <div class="location-title">
+            <h1>实时定位与路径规划</h1>
+            <span>SmartTillEye 高德地图定位中枢</span>
+        </div>
+        <a class="back-link" href="/">返回主控大屏</a>
+    </header>
+
+    <main class="location-main">
+        <div id="map"></div>
+        <aside class="location-panel">
+            <section class="status-card">
+                <div class="status-head">
+                    <h2>当前位置</h2>
+                    <span id="locationStatus" class="badge">定位离线</span>
+                </div>
+                <div class="metric-list">
+                    <div class="metric"><span>经度</span><strong id="longitudeValue">--</strong></div>
+                    <div class="metric"><span>纬度</span><strong id="latitudeValue">--</strong></div>
+                    <div class="metric"><span>速度</span><strong id="speedValue">--</strong></div>
+                </div>
+            </section>
+
+            <section class="route-card">
+                <h2>路径规划</h2>
+                <div class="metric-list">
+                    <div class="metric"><span>目的地</span><strong id="destinationValue">点击地图选择</strong></div>
+                    <div class="metric"><span>路线距离</span><strong id="distanceValue">--</strong></div>
+                    <div class="metric"><span>预计时间</span><strong id="durationValue">--</strong></div>
+                </div>
+                <div class="route-actions">
+                    <button id="planRouteButton" type="button" disabled>规划路线</button>
+                    <button id="clearRouteButton" class="secondary" type="button">清除路线</button>
+                </div>
+                <p class="hint">点击地图选择目的地，确认后规划驾车路线。</p>
+            </section>
+
+            <div id="locationMessage" class="message">正在加载地图...</div>
+        </aside>
+    </main>
+</div>
+
+<script src="js/location-map.js?v=20260818-location1"></script>
+<script>
+    (function () {
+        const config = window.SMART_TILL_EYE_LOCATION_CONFIG || {};
+        const message = document.getElementById('locationMessage');
+        if (!config.amapJsKey || !config.amapSecurityJsCode) {
+            message.textContent = '请先在 js/app-config.local.js 填入高德 Web端 JS API Key 和 Security JS Code。';
+            message.className = 'message warn';
+            return;
+        }
+
+        window._AMapSecurityConfig = {
+            securityJsCode: config.amapSecurityJsCode
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://webapi.amap.com/maps?v=2.0&key=' + encodeURIComponent(config.amapJsKey) + '&plugin=AMap.Driving&callback=initLocationMap';
+        script.onerror = function () {
+            message.textContent = '高德地图加载失败，请检查 Key、Security JS Code 或 VPN/代理。';
+            message.className = 'message error';
+        };
+        document.head.appendChild(script);
+    })();
+</script>
+</body>
+</html>

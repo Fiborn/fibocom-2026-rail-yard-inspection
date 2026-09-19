@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTillEye 智能巡检与机器人控制大屏</title>
+    <link rel="stylesheet" href="css/style.css?v=20260817-sc171-camera1">
+</head>
+<body>
+<div class="hud-shell">
+    <header class="hud-header panel panel-enter delay-1">
+        <div class="header-side left">
+        </div>
+
+        <div class="header-center">
+            <p class="subtitle">铁路货运装卸车前检-中检-后检智能巡检可视化中枢</p>
+        </div>
+
+        <div class="header-side right">
+            <article class="head-card warning">
+                <span>当前告警</span>
+                <strong id="warning-count">6</strong>
+            </article>
+            <article class="head-card">
+                <span>系统时间</span>
+                <strong id="clock">--:--:--</strong>
+            </article>
+            <article class="head-card map-entry-card">
+                <span>地图导航</span>
+                <strong><a class="map-entry-link" href="/location.html">实时定位</a></strong>
+            </article>
+        </div>
+    </header>
+
+    <main class="hud-grid">
+        <section class="panel left-mid robot-control-slot panel-enter delay-3">
+            <div id="robot-control-mount"></div>
+        </section>
+
+        <section class="panel center-main panel-enter delay-2">
+            <h2>巡检主屏</h2>
+            <div class="video-screen">
+                <img id="remoteVideo" alt="SC171-V3 实时摄像头画面">
+                <canvas id="detectionCanvas" class="detection-canvas"></canvas>
+                <div id="cameraStatus" class="camera-status">
+                    <span>正在连接摄像头</span>
+                    <button id="cameraStartButton" type="button" hidden>重新连接</button>
+                </div>
+                <div class="video-overlay">
+                    <div class="corner-tag tl">前检区域</div>
+                    <div class="corner-tag tr">中检轨迹</div>
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel right-mid agent-panel panel-enter delay-4">
+            <div class="agent-head">
+                <div>
+                    <h2>智能 Agent</h2>
+                    <span>告警处置建议</span>
+                </div>
+                <strong id="agent-severity">待机</strong>
+            </div>
+            <div class="agent-body">
+                <div class="agent-summary">
+                    <div>
+                        <span>告警类型</span>
+                        <strong id="agent-label">等待识别</strong>
+                    </div>
+                    <div>
+                        <span>识别置信度</span>
+                        <strong id="agent-confidence">--</strong>
+                    </div>
+                </div>
+                <p id="agent-advice" class="agent-advice">检测到有效告警后，系统会根据 YOLO 识别置信度自动匹配处置建议。</p>
+                <form id="agent-chat-form" class="agent-chat-form">
+                    <input id="agent-question" type="text" maxlength="180" placeholder="向智能 Agent 提问">
+                    <button id="agent-chat-submit" type="submit">提问</button>
+                </form>
+                <div id="agent-chat-answer" class="agent-chat-answer">可询问异常处置、设备状态、巡检演示等问题。</div>
+            </div>
+        </section>
+
+        <section class="panel bottom-left panel-enter delay-5">
+            <h2>异常类型分布</h2>
+            <div class="dist-list">
+                <div class="dist-row">
+                    <span>车门异常</span>
+                    <div class="dist-bar"><i id="dist-door" style="width:58%"></i></div>
+                    <strong id="dist-door-val">58</strong>
+                </div>
+                <div class="dist-row">
+                    <span>道旁异物</span>
+                    <div class="dist-bar"><i id="dist-object" style="width:47%"></i></div>
+                    <strong id="dist-object-val">47</strong>
+                </div>
+                <div class="dist-row">
+                    <span>人员越界</span>
+                    <div class="dist-bar"><i id="dist-person" style="width:33%"></i></div>
+                    <strong id="dist-person-val">33</strong>
+                </div>
+                <div class="dist-row">
+                    <span>轨道损坏</span>
+                    <div class="dist-bar"><i id="dist-track" style="width:41%"></i></div>
+                    <strong id="dist-track-val">41</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel bottom-center panel-enter delay-6">
+            <h2>实时告警队列 <a class="alarm-download" href="/alarm-log/download">下载记录</a></h2>
+            <div class="alert-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>事件</th>
+                        <th>等级</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody id="alert-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    const state = {
+        warnings: 6,
+        dist: {
+            door: 58,
+            object: 47,
+            person: 33,
+            track: 41
+        }
+    };
+
+    const alertPool = [
+        { event: "吊具区域短时遮挡", level: "中", status: "复核中" },
+        { event: "车门状态异常", level: "高", status: "待处置" },
+        { event: "人员越界靠近", level: "高", status: "已告警" },
+        { event: "中检图像噪声突增", level: "中", status: "已补拍" },
+        { event: "轨迹抖动超阈值", level: "低", status: "观察中" },
+        { event: "平台回传延迟", level: "低", status: "优化中" }
+    ];
+
+    function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+    }
+
+    function jitter(value, min, max, delta) {
+        return Number(clamp(value + (Math.random() * 2 - 1) * delta, min, max).toFixed(1));
+    }
+
+    function nowTime() {
+        return new Date().toLocaleTimeString("zh-CN", { hour12: false });
+    }
+
+    function updateClock() {
+        document.getElementById("clock").textContent = new Date().toLocaleString("zh-CN", { hour12: false });
+    }
+
+    function renderMetrics() {
+        state.warnings = Math.round(jitter(state.warnings, 2, 12, 1.1));
+
+        document.getElementById("warning-count").textContent = state.warnings;
+    }
+
+    function renderDist() {
+        if (window.__railwayDetectionActive) return;
+        const keys = ["door", "object", "person", "track"];
+        keys.forEach((key) => {
+            state.dist[key] = Math.round(jitter(state.dist[key], 18, 80, 5));
+            document.getElementById("dist-" + key).style.width = state.dist[key] + "%";
+            document.getElementById("dist-" + key + "-val").textContent = state.dist[key];
+        });
+    }
+
+    function renderAlerts() {
+        if (window.__railwayDetectionActive) return;
+        const tbody = document.getElementById("alert-body");
+        const start = Math.floor(Math.random() * alertPool.length);
+        const rows = [];
+
+        for (let i = 0; i < 6; i++) {
+            const item = alertPool[(start + i) % alertPool.length];
+            const cls = item.level === "高" ? "high" : item.level === "中" ? "mid" : "low";
+            rows.push(
+                `<tr>
+                    <td>${nowTime()}</td>
+                    <td>${item.event}</td>
+                    <td><span class="level ${cls}">${item.level}</span></td>
+                    <td>${item.status}</td>
+                </tr>`
+            );
+        }
+
+        tbody.innerHTML = rows.join("");
+    }
+
+    function refreshAll() {
+        updateClock();
+        renderMetrics();
+        renderDist();
+        renderAlerts();
+    }
+
+    refreshAll();
+    setInterval(updateClock, 1000);
+    setInterval(function () {
+        renderMetrics();
+        renderDist();
+        renderAlerts();
+    }, 5000);
+</script>
+<script src="js/camera-config.js?v=20260817-sc171-camera1"></script>
+<script src="js/local-camera.js?v=20260817-sc171-camera1"></script>
+<script src="js/yolo-detection.js?v=20260817-sc171-camera1"></script>
+<script src="js/robot-control.js?v=20260726-keyboard1"></script>
+<script src="js/agent-chat.js?v=20260818-deepseek1"></script>
+</body>
+</html>

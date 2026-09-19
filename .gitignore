@@ -1,0 +1,34 @@
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Java / Maven build output
+target/
+*.class
+
+# Frontend assets are kept under frontend/static for repository browsing.
+# The delivery package also duplicated them under the Spring Boot resources.
+backend/src/main/resources/static/
+
+# Runtime bundles and generated artifacts
+runtime/
+alarm-records/
+*.log
+*.out.log
+*.err.log
+*.jar
+*.jar.original
+
+# Temporary and backup folders from delivery packages
+backup_*/
+*_备份*/
+修改前备份*/
+DeepSeek*备份*/
+地图移植前备份*/
+
+# Local secrets or machine-specific config
+.env
+.env.*
+frontend/static/js/app-config.local.js
