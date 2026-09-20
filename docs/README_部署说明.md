@@ -72,20 +72,67 @@ ESP32 会通过 UDP `4210` 端口自动寻找后端，不再依赖固定电脑 I
 - Agent：根据目标类别和识别置信度区间返回预设运维建议。
 - 表格：告警记录保存到后端工作目录下的 `alarm-records` 文件夹，按天生成 CSV 文件。
 
-## 五、端口和协议
+## 五、实时定位与路径规划
+
+本仓库已整理实时定位与路径规划相关代码：
+
+- `scripts/gps_receiver_local.py`：本地 GPS 接收服务，监听 `0.0.0.0:5001`。
+- `frontend/static/location.html`：高德地图定位与路径规划页面。
+- `frontend/static/js/location-map.js`：读取 `/location`、更新当前位置、选择目的地和调用 `AMap.Driving`。
+- `frontend/static/js/app-config.js`：统一配置 `locationApiBase`。
+- `frontend/static/js/app-config.local.example.js`：高德 Web 端 JS API Key 与 Security JS Code 的本地配置示例。
+
+定位链路：
+
+`手机 GPSLogger -> HTTP -> gps_receiver_local.py :5001 -> WGS84 转 GCJ-02 -> /location -> SmartTillEye -> 高德地图 -> AMap.Driving`
+
+GPSLogger URL 模板：
+
+`http://<SERVER_IP>:5001/?lat=%LAT&longitude=%LON&time=%TIME&speed=%SPD`
+
+当前 Windows 联调默认配置：
+
+`locationApiBase: 'http://127.0.0.1:5001'`
+
+未来部署到 SC171-V3 或其他定位服务器时，只需要将 `frontend/static/js/app-config.js` 中的 `locationApiBase` 改为：
+
+`http://<SC171_IP>:5001`
+
+高德 Key 不应直接写入公开仓库。需要本地运行地图时，复制：
+
+`frontend/static/js/app-config.local.example.js`
+
+为：
+
+`frontend/static/js/app-config.local.js`
+
+然后在 `app-config.local.js` 中填写本机使用的高德 Web 端 JS API Key 与 Security JS Code。
+
+## 六、端口和协议
 
 - HTTP：`8088`
+- GPS 定位服务 HTTP：`5001`
 - 浏览器控制 WebSocket：`/ws/controller`
 - ESP32 WebSocket：`/ws/car`
 - 局域网自动发现 UDP：`4210`
 - 自动发现请求：`SMARTTILLEYE_DISCOVER,8088`
 - 自动发现回复：`SMARTTILLEYE_SERVER,8088`
 
-## 六、故障排查
+## 七、故障排查
 
 ### 页面打不开
 
 检查后端窗口是否仍在运行，确认 `8088` 端口没有被其他程序占用。
+
+### 定位页面没有当前位置
+
+先访问 `http://127.0.0.1:5001/location`。如果无法访问，说明 GPS 接收服务没有启动或 `5001` 端口被占用；如果返回 `valid=false`，说明定位服务已启动但还没有收到手机 GPSLogger 数据。
+
+### GPSLogger 无法上传
+
+确认手机和电脑在同一网络，URL 使用电脑局域网 IP，例如：
+
+`http://<电脑IP>:5001/?lat=%LAT&longitude=%LON&time=%TIME&speed=%SPD`
 
 ### 页面显示 ESP32 离线
 
