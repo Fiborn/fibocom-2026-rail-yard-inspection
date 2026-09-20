@@ -76,11 +76,11 @@ ESP32 会通过 UDP `4210` 端口自动寻找后端，不再依赖固定电脑 I
 
 本仓库已整理实时定位与路径规划相关代码：
 
-- `scripts/gps_receiver_local.py`：本地 GPS 接收服务，监听 `0.0.0.0:5001`。
-- `frontend/static/location.html`：高德地图定位与路径规划页面。
-- `frontend/static/js/location-map.js`：读取 `/location`、更新当前位置、选择目的地和调用 `AMap.Driving`。
-- `frontend/static/js/app-config.js`：统一配置 `locationApiBase`。
-- `frontend/static/js/app-config.local.example.js`：高德 Web 端 JS API Key 与 Security JS Code 的本地配置示例。
+- `tools/scripts/gps_receiver_local.py`：本地 GPS 接收服务，监听 `0.0.0.0:5001`。
+- `edge_computing/frontend/static/location.html`：高德地图定位与路径规划页面。
+- `edge_computing/frontend/static/js/location-map.js`：读取 `/location`、更新当前位置、选择目的地和调用 `AMap.Driving`。
+- `edge_computing/frontend/static/js/app-config.js`：统一配置 `locationApiBase`。
+- `edge_computing/frontend/static/js/app-config.local.example.js`：高德 Web 端 JS API Key 与 Security JS Code 的本地配置示例。
 
 定位链路：
 
@@ -94,17 +94,17 @@ GPSLogger URL 模板：
 
 `locationApiBase: 'http://127.0.0.1:5001'`
 
-未来部署到 SC171-V3 或其他定位服务器时，只需要将 `frontend/static/js/app-config.js` 中的 `locationApiBase` 改为：
+未来部署到 SC171-V3 或其他定位服务器时，只需要将 `edge_computing/frontend/static/js/app-config.js` 中的 `locationApiBase` 改为：
 
 `http://<SC171_IP>:5001`
 
 高德 Key 不应直接写入公开仓库。需要本地运行地图时，复制：
 
-`frontend/static/js/app-config.local.example.js`
+`edge_computing/frontend/static/js/app-config.local.example.js`
 
 为：
 
-`frontend/static/js/app-config.local.js`
+`edge_computing/frontend/static/js/app-config.local.js`
 
 然后在 `app-config.local.js` 中填写本机使用的高德 Web 端 JS API Key 与 Security JS Code。
 
@@ -149,3 +149,4 @@ GPSLogger URL 模板：
 ### 告警过多
 
 当前同类型告警冷却时间为 30 秒，冷却结束后才允许同类型告警再次生成。
+

@@ -1,18 +1,19 @@
-# SmartTillEye 小车智能巡检系统
+# 铁路货场空地一体智能巡检系统
 
-SmartTillEye 是一个面向轨道/场景巡检的小车智能识别系统，包含 Spring Boot 后端、前端控制台、ESP32 小车与机械臂控制程序、视觉识别模型、实时定位与路径规划页面，以及自动发现启动脚本。
+本项目面向铁路货场巡检场景，构建空地一体智能巡检系统。系统结合地面智能巡检小车、前端可视化控制台、边缘侧目标识别、实时定位与路径规划等模块，用于完成货场通道、轨旁环境、人员闯入、障碍物和设备状态等巡检任务的感知、展示与辅助处置。
 
-本仓库是从完整交付包中整理出的 GitHub 展示与开发版本，只保留源码、结构、脚本、固件和说明文档；未包含 JRE runtime、构建产物、运行日志、历史备份和重复 JAR 文件。
+本仓库基于 FiBoom-project 模板整理，只保留与代码结构、核心功能和项目展示相关的内容；未包含 JRE runtime、构建产物、运行日志、历史备份和重复 JAR 文件。真实 API Key 与本机专属配置不进入仓库，请参考 `.env.example` 在本地配置。
 
 ## 仓库结构
 
 ```text
-backend/    Spring Boot 后端源码与 Maven 配置
-frontend/   前端静态页面、样式、控制逻辑、ONNX Runtime 与模型文件
-esp32/      ESP32 控制源码与 SCServo 舵机库
-firmware/   ESP32 自动发现版烧录固件与烧录脚本
-scripts/    Windows 一键启动/停止脚本与本地 GPS 接收脚本
-docs/       部署说明与项目技术报告
+.github/          Issue 与 Pull Request 模板
+cloud/            云端服务预留目录，当前为空
+docs/             部署说明、项目技术报告和功能说明
+edge_computing/   后端服务、前端控制台、边缘识别模型和静态资源
+firmware/         ESP32 自动发现版烧录固件与烧录脚本
+hardware/         ESP32 控制源码与 SCServo 舵机库
+tools/            Windows 一键启动/停止脚本与本地 GPS 接收脚本
 ```
 
 ## 快速启动
@@ -30,7 +31,7 @@ docs/README_部署说明.md
 3. 双击或运行：
 
 ```text
-scripts/启动系统_自动发现.cmd
+tools/scripts/启动系统_自动发现.cmd
 ```
 
 4. 浏览器访问：
@@ -50,7 +51,7 @@ http://127.0.0.1:5001/location
 ## 后端开发
 
 ```bash
-cd backend
+cd edge_computing/backend
 mvn spring-boot:run
 ```
 
@@ -61,7 +62,7 @@ mvn spring-boot:run
 前端源码位于：
 
 ```text
-frontend/static/
+edge_computing/frontend/static/
 ```
 
 其中包含控制台页面、摄像头/视频处理、WebSocket 控制、定位地图、YOLO 检测等逻辑。
@@ -77,13 +78,13 @@ docs/实时定位与路径规划.md
 ESP32 源码位于：
 
 ```text
-esp32/src/esp32_car_arm_network.ino
+hardware/esp32/src/esp32_car_arm_network.ino
 ```
 
 依赖的舵机库位于：
 
 ```text
-esp32/libraries/SCServo/
+hardware/esp32/libraries/SCServo/
 ```
 
 可直接烧录的固件位于：

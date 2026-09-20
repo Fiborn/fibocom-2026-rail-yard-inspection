@@ -8,9 +8,9 @@ Thumbs.db
 target/
 *.class
 
-# Frontend assets are kept under frontend/static for repository browsing.
+# Frontend assets are kept under edge_computing/frontend/static for repository browsing.
 # The delivery package also duplicated them under the Spring Boot resources.
-backend/src/main/resources/static/
+edge_computing/backend/src/main/resources/static/
 
 # Runtime bundles and generated artifacts
 runtime/
@@ -31,4 +31,5 @@ DeepSeek*备份*/
 # Local secrets or machine-specific config
 .env
 .env.*
-frontend/static/js/app-config.local.js
+!/.env.example
+edge_computing/frontend/static/js/app-config.local.js

@@ -1,0 +1,19 @@
+name: Bug report
+description: 反馈项目运行、部署或展示问题
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 请说明出现了什么问题，以及你期望的结果。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请列出能复现问题的操作步骤。
+    validations:
+      required: false
