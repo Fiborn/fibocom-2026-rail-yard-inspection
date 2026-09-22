@@ -36,7 +36,7 @@
 ├── hardware/                              # 硬件集成、结构、PCB 与物料资料
 │   ├── pcb/
 │   ├── mechanical/
-│   ├── README.md                          # “铁途灵探”巡检平台硬件清单说明
+│   ├── README.md                          # 巡检平台硬件清单说明
 │   └── bom.csv
 └── tools/                                 # 启动、停止、调试和定位接收脚本
     └── scripts/
